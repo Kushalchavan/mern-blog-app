@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const postSchema = mongoose.Schema(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -21,6 +21,10 @@ const postSchema = mongoose.Schema(
     },
     desc: {
       type: String,
+    },
+    category: {
+      type : String,
+      default: "general"
     },
     content: {
       type: String,

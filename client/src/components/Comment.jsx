@@ -10,7 +10,7 @@ const Comment = () => {
           width="40"
         />
         <span className="font-medium">Kushal chavan</span>
-        <span className="text-sm text-gray-500">2 days agp</span>
+        <span className="text-sm text-gray-500">2 days ago</span>
       </div>
 
       <div className="mt-4">
