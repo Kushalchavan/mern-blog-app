@@ -1,13 +1,27 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+import ImageKit from "imagekit";
 
 export const getPosts = async (req, res) => {
-  const posts = await Post.find();
-  res.status(200).json(posts);
+  const page = parseInt(res.query.page) || 1;
+  const limit = parseInt(res.query.limit) || 2;
+
+  const posts = await Post.find()
+    .populate("user", "username")
+    .limit(limit)
+    .skip((page - 1) * limit);
+
+  const totalPosts = await Post.countDocuments();
+  const hasMore = page * limit < totalPosts;
+
+  res.status(200).json({ posts, hasMore });
 };
 
 export const getPost = async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug });
+  const post = await Post.findOne({ slug: req.params.slug }).populate(
+    "user",
+    "username img"
+  );
   res.status(200).json(post);
 };
 
@@ -28,9 +42,9 @@ export const createPost = async (req, res) => {
   let existingPost = await Post.findOne({ slug });
   let counter = 2;
 
-  while(existingPost) {
+  while (existingPost) {
     slug = `${slug}-${counter}`;
-    existingPost = await Post.findOne({slug});
+    existingPost = await Post.findOne({ slug });
     counter++;
   }
 
@@ -57,4 +71,15 @@ export const deletePost = async (req, res) => {
     return res.status(403).json("You can delete only your posts!");
   }
   res.status(200).json("Post has been deleted");
+};
+
+const imagekit = new ImageKit({
+  urlEndpoint: process.env.IK_URL_ENDPOINT,
+  publicKey: process.env.IK_PUBLIC_KEY,
+  privateKey: process.env.IK_PRIVATE_KEY,
+});
+
+export const uploadAuth = async (req, res) => {
+  const results = imagekit.getAuthenticationParameters();
+  res.send(results);
 };
